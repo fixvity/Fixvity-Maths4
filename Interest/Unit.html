@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Unit Converter Calculator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+:root{
+  --primary:#2563eb;
+  --bg:#f4f7fb;
+  --card:#ffffff;
+  --text:#111827;
+  --muted:#6b7280;
+  --radius:14px;
+  --shadow:0 10px 30px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Inter,system-ui,Arial;
+  background:var(--bg);
+  color:var(--text);
+}
+.container{
+  max-width:900px;
+  margin:auto;
+  padding:16px;
+}
+.header{
+  background:var(--card);
+  padding:24px;
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  text-align:center;
+}
+.header h1{margin:0;color:var(--primary)}
+.header p{color:var(--muted)}
+
+.card{
+  background:var(--card);
+  margin-top:18px;
+  padding:20px;
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+}
+
+.row{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:14px;
+}
+
+@media(min-width:700px){
+  .row{
+    grid-template-columns:1fr auto 1fr;
+    align-items:end;
+  }
+}
+
+label{font-weight:600}
+select,input{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #e5e7eb;
+  font-size:15px;
+}
+
+.swap{
+  background:var(--primary);
+  color:#fff;
+  border:none;
+  border-radius:50%;
+  width:44px;
+  height:44px;
+  font-size:20px;
+  cursor:pointer;
+}
+
+.result{
+  margin-top:16px;
+  background:#eef2ff;
+  padding:18px;
+  border-radius:12px;
+  text-align:center;
+  font-size:22px;
+  font-weight:700;
+}
+
+.actions{
+  display:flex;
+  gap:12px;
+  margin-top:14px;
+}
+button{
+  flex:1;
+  padding:14px;
+  font-weight:700;
+  border-radius:12px;
+  border:none;
+  cursor:pointer;
+}
+.primary{background:var(--primary);color:#fff}
+.clear{background:#e5e7eb}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<div class="header">
+<h1>Unit Converter</h1>
+<p>World-class unit converter with accurate, real-time results.</p>
+</div>
+
+<div class="card">
+
+<label>Category</label>
+<select id="category" onchange="loadUnits()">
+<option value="length">Length</option>
+<option value="weight">Weight</option>
+<option value="temperature">Temperature</option>
+<option value="area">Area</option>
+<option value="volume">Volume</option>
+<option value="speed">Speed</option>
+<option value="time">Time</option>
+<option value="data">Data</option>
+<option value="energy">Energy</option>
+<option value="pressure">Pressure</option>
+</select>
+
+<div class="row" style="margin-top:14px">
+
+<div>
+<label>From</label>
+<input id="inputValue" type="number" value="1" oninput="convert()">
+<select id="fromUnit" onchange="convert()"></select>
+</div>
+
+<button class="swap" onclick="swap()">⇄</button>
+
+<div>
+<label>To</label>
+<input id="outputValue" disabled>
+<select id="toUnit" onchange="convert()"></select>
+</div>
+
+</div>
+
+<div class="actions">
+<button class="primary" onclick="convert()">Convert</button>
+<button class="clear" onclick="clearAll()">Clear</button>
+</div>
+
+<div class="result" id="resultText">Result will appear here</div>
+
+</div>
+</div>
+
+<script>
+const units={
+length:{m:1,km:1000,cm:0.01,mm:0.001,mile:1609.344,ft:0.3048,in:0.0254},
+weight:{kg:1,g:0.001,mg:0.000001,lb:0.453592,oz:0.0283495},
+area:{sqm:1,sqkm:1e6,sqft:0.092903,acre:4046.86},
+volume:{l:1,ml:0.001,cum:1000,gal:3.78541},
+speed:{mps:1,kph:0.277778,mph:0.44704},
+time:{sec:1,min:60,hr:3600,day:86400},
+data:{byte:1,kb:1024,mb:1048576,gb:1073741824},
+energy:{j:1,kj:1000,cal:4.184,kcal:4184},
+pressure:{pa:1,kpa:1000,bar:100000,psi:6894.76}
+};
+
+function loadUnits(){
+const cat=category.value;
+fromUnit.innerHTML="";
+toUnit.innerHTML="";
+if(cat==="temperature"){
+["C","F","K"].forEach(u=>{
+fromUnit.add(new Option(u,u));
+toUnit.add(new Option(u,u));
+});
+}else{
+Object.keys(units[cat]).forEach(u=>{
+fromUnit.add(new Option(u,u));
+toUnit.add(new Option(u,u));
+});
+}
+convert();
+}
+
+function convert(){
+const v=parseFloat(inputValue.value);
+if(isNaN(v)){outputValue.value="";return;}
+const cat=category.value;
+const f=fromUnit.value;
+const t=toUnit.value;
+let r;
+
+if(cat==="temperature"){
+if(f===t) r=v;
+else if(f==="C"&&t==="F") r=v*9/5+32;
+else if(f==="C"&&t==="K") r=v+273.15;
+else if(f==="F"&&t==="C") r=(v-32)*5/9;
+else if(f==="F"&&t==="K") r=(v-32)*5/9+273.15;
+else if(f==="K"&&t==="C") r=v-273.15;
+else if(f==="K"&&t==="F") r=(v-273.15)*9/5+32;
+}else{
+r=v*units[cat][f]/units[cat][t];
+}
+
+outputValue.value=r.toFixed(6);
+resultText.textContent=`${v} ${f} = ${r.toFixed(6)} ${t}`;
+}
+
+function swap(){
+[fromUnit.value,toUnit.value]=[toUnit.value,fromUnit.value];
+convert();
+}
+
+function clearAll(){
+inputValue.value="";
+outputValue.value="";
+resultText.textContent="Result will appear here";
+}
+
+loadUnits();
+</script>
+
+</body>
+</html>
