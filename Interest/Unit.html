@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Unit Converter Calculator</title>
+<title>Unit Converter</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -12,8 +12,8 @@
   --card:#ffffff;
   --text:#111827;
   --muted:#6b7280;
-  --radius:14px;
-  --shadow:0 10px 30px rgba(0,0,0,.08);
+  --radius:18px;
+  --shadow:0 12px 34px rgba(0,0,0,.08);
 }
 *{box-sizing:border-box}
 body{
@@ -25,84 +25,93 @@ body{
 .container{
   max-width:900px;
   margin:auto;
-  padding:16px;
+  padding:18px;
 }
 .header{
   background:var(--card);
-  padding:24px;
+  padding:30px;
   border-radius:var(--radius);
   box-shadow:var(--shadow);
   text-align:center;
 }
-.header h1{margin:0;color:var(--primary)}
-.header p{color:var(--muted)}
-
+.header h1{
+  margin:0;
+  color:var(--primary);
+  font-size:34px;
+}
+.header p{
+  margin-top:10px;
+  color:var(--muted);
+  font-size:16px;
+}
 .card{
   background:var(--card);
-  margin-top:18px;
-  padding:20px;
+  margin-top:24px;
+  padding:26px;
   border-radius:var(--radius);
   box-shadow:var(--shadow);
 }
-
-.row{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:14px;
+.field{
+  margin-bottom:22px;
 }
-
-@media(min-width:700px){
-  .row{
-    grid-template-columns:1fr auto 1fr;
-    align-items:end;
-  }
+label{
+  font-weight:600;
+  display:block;
+  margin-bottom:6px;
 }
-
-label{font-weight:600}
-select,input{
+input,select{
   width:100%;
-  padding:12px;
-  border-radius:10px;
+  padding:15px;
+  font-size:16px;
+  border-radius:14px;
   border:1px solid #e5e7eb;
-  font-size:15px;
 }
-
+.grid{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  gap:16px;
+  align-items:end;
+}
 .swap{
   background:var(--primary);
   color:#fff;
   border:none;
+  width:52px;
+  height:52px;
   border-radius:50%;
-  width:44px;
-  height:44px;
   font-size:20px;
   cursor:pointer;
 }
-
-.result{
-  margin-top:16px;
-  background:#eef2ff;
-  padding:18px;
-  border-radius:12px;
-  text-align:center;
-  font-size:22px;
-  font-weight:700;
-}
-
 .actions{
-  display:flex;
-  gap:12px;
-  margin-top:14px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
+  margin-top:10px;
 }
 button{
-  flex:1;
-  padding:14px;
+  padding:15px;
+  font-size:16px;
   font-weight:700;
-  border-radius:12px;
   border:none;
+  border-radius:16px;
   cursor:pointer;
 }
 .primary{background:var(--primary);color:#fff}
-.clear{background:#e5e7eb}
+.clear{background:#eef2f7}
+.result{
+  margin-top:26px;
+  background:#eef2ff;
+  padding:20px;
+  border-radius:16px;
+  text-align:center;
+  font-size:22px;
+  font-weight:700;
+  line-height:1.4;
+}
+@media(max-width:700px){
+  .grid{grid-template-columns:1fr}
+  .swap{width:100%;border-radius:14px}
+}
 </style>
 </head>
 
@@ -111,117 +120,110 @@ button{
 
 <div class="header">
 <h1>Unit Converter</h1>
-<p>World-class unit converter with accurate, real-time results.</p>
+<p>Advanced unit converter with professional accuracy & instant results.</p>
 </div>
 
 <div class="card">
 
+<div class="field">
 <label>Category</label>
 <select id="category" onchange="loadUnits()">
 <option value="length">Length</option>
-<option value="weight">Weight</option>
-<option value="temperature">Temperature</option>
 <option value="area">Area</option>
 <option value="volume">Volume</option>
+<option value="mass">Weight / Mass</option>
+<option value="temperature">Temperature</option>
 <option value="speed">Speed</option>
 <option value="time">Time</option>
-<option value="data">Data</option>
+<option value="data">Data Storage</option>
 <option value="energy">Energy</option>
 <option value="pressure">Pressure</option>
 </select>
-
-<div class="row" style="margin-top:14px">
-
-<div>
-<label>From</label>
-<input id="inputValue" type="number" value="1" oninput="convert()">
-<select id="fromUnit" onchange="convert()"></select>
 </div>
 
-<button class="swap" onclick="swap()">⇄</button>
+<div class="grid">
+<div>
+<label>From</label>
+<input id="fromVal" type="number" value="1" oninput="convert()">
+<select id="fromUnit"></select>
+</div>
+
+<button class="swap" onclick="swapUnits()">⇄</button>
 
 <div>
 <label>To</label>
-<input id="outputValue" disabled>
-<select id="toUnit" onchange="convert()"></select>
+<input id="toVal" disabled>
+<select id="toUnit"></select>
 </div>
-
 </div>
 
 <div class="actions">
 <button class="primary" onclick="convert()">Convert</button>
-<button class="clear" onclick="clearAll()">Clear</button>
+<button class="clear" onclick="resetAll()">Clear</button>
 </div>
 
-<div class="result" id="resultText">Result will appear here</div>
+<div class="result" id="result">
+1 m = 0.001 km
+</div>
 
 </div>
 </div>
 
 <script>
-const units={
-length:{m:1,km:1000,cm:0.01,mm:0.001,mile:1609.344,ft:0.3048,in:0.0254},
-weight:{kg:1,g:0.001,mg:0.000001,lb:0.453592,oz:0.0283495},
-area:{sqm:1,sqkm:1e6,sqft:0.092903,acre:4046.86},
-volume:{l:1,ml:0.001,cum:1000,gal:3.78541},
-speed:{mps:1,kph:0.277778,mph:0.44704},
-time:{sec:1,min:60,hr:3600,day:86400},
-data:{byte:1,kb:1024,mb:1048576,gb:1073741824},
-energy:{j:1,kj:1000,cal:4.184,kcal:4184},
-pressure:{pa:1,kpa:1000,bar:100000,psi:6894.76}
+const U={
+length:{m:1,km:1000,cm:0.01,mm:0.001,mile:1609.344,yd:0.9144,ft:0.3048,in:0.0254},
+area:{sqm:1,sqkm:1e6,sqcm:0.0001,sqft:0.092903,acre:4046.86,hectare:10000},
+volume:{l:1,ml:0.001,cum:1000,gal_us:3.78541,gal_uk:4.54609,qt:0.946353,pt:0.473176},
+mass:{kg:1,g:0.001,mg:1e-6,lb:0.453592,oz:0.0283495,ton:1000},
+speed:{mps:1,kmh:0.277778,mph:0.44704,knot:0.514444},
+time:{sec:1,min:60,hr:3600,day:86400,week:604800,year:31536000},
+data:{B:1,KB:1024,MB:1048576,GB:1073741824,TB:1099511627776},
+energy:{J:1,kJ:1000,cal:4.184,kcal:4184,Wh:3600,kWh:3600000},
+pressure:{Pa:1,kPa:1000,bar:100000,psi:6894.76,atm:101325}
 };
 
 function loadUnits(){
 const cat=category.value;
-fromUnit.innerHTML="";
-toUnit.innerHTML="";
+fromUnit.innerHTML=toUnit.innerHTML="";
 if(cat==="temperature"){
 ["C","F","K"].forEach(u=>{
-fromUnit.add(new Option(u,u));
-toUnit.add(new Option(u,u));
+fromUnit.innerHTML+=`<option>${u}</option>`;
+toUnit.innerHTML+=`<option>${u}</option>`;
 });
 }else{
-Object.keys(units[cat]).forEach(u=>{
-fromUnit.add(new Option(u,u));
-toUnit.add(new Option(u,u));
-});
+for(let u in U[cat]){
+fromUnit.innerHTML+=`<option>${u}</option>`;
+toUnit.innerHTML+=`<option>${u}</option>`;
+}
 }
 convert();
 }
 
 function convert(){
-const v=parseFloat(inputValue.value);
-if(isNaN(v)){outputValue.value="";return;}
-const cat=category.value;
+const v=parseFloat(fromVal.value)||0;
 const f=fromUnit.value;
 const t=toUnit.value;
-let r;
+const cat=category.value;
+let r=0;
 
 if(cat==="temperature"){
-if(f===t) r=v;
-else if(f==="C"&&t==="F") r=v*9/5+32;
-else if(f==="C"&&t==="K") r=v+273.15;
-else if(f==="F"&&t==="C") r=(v-32)*5/9;
-else if(f==="F"&&t==="K") r=(v-32)*5/9+273.15;
-else if(f==="K"&&t==="C") r=v-273.15;
-else if(f==="K"&&t==="F") r=(v-273.15)*9/5+32;
+let c=f==="C"?v:f==="F"?(v-32)*5/9:v-273.15;
+r=t==="C"?c:t==="F"?c*9/5+32:c+273.15;
 }else{
-r=v*units[cat][f]/units[cat][t];
+r=v*U[cat][f]/U[cat][t];
+}
+toVal.value=Number(r.toPrecision(12));
+result.textContent=`${v} ${f} = ${Number(r.toPrecision(12))} ${t}`;
 }
 
-outputValue.value=r.toFixed(6);
-resultText.textContent=`${v} ${f} = ${r.toFixed(6)} ${t}`;
-}
-
-function swap(){
+function swapUnits(){
 [fromUnit.value,toUnit.value]=[toUnit.value,fromUnit.value];
 convert();
 }
 
-function clearAll(){
-inputValue.value="";
-outputValue.value="";
-resultText.textContent="Result will appear here";
+function resetAll(){
+fromVal.value=1;
+loadUnits();
 }
 
 loadUnits();
